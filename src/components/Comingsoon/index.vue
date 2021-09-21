@@ -1,5 +1,7 @@
 <template>
     <div class="movie_body">
+		<Loading v-if="isLoading"/>
+		<Scroller v-else>
 				<ul>
 					<!-- <li>
 						<div class="pic_show"><img src="/images/movie_1.jpg"></div>
@@ -26,6 +28,7 @@
 						</div>
 					</li>
 				</ul>
+		</Scroller>
 			</div>
 </template>
 
@@ -34,13 +37,23 @@ export default {
     name : 'Comingsoon',
 	data () {
 		return{
-			comingList : []
+			comingList : [],
+			isLoading : true,
+			prevCityId : -1
 		}
 	},
-	mounted () {
-		this.axios.get('/ajax/comingList?ci=151&token=&limit=10&optimus_uuid=A670468012D611ECA153E1DAC21B520C05C0FB8BFDB9497397948C9048E73EF5&optimus_risk_level=71&optimus_code=10').then(res=>{
+	activated () {
+		var cityId = this.$store.state.city.id
+
+		if (this.prevCityId === cityId){
+			return
+		}
+		this.isLoading = true
+		this.axios.get(`/ajax/comingList?ci=151&token=&limit=10&optimus_uuid=A670468012D611ECA153E1DAC21B520C05C0FB8BFDB9497397948C9048E73EF5&optimus_risk_level=71&optimus_code=10`).then(res=>{
 			this.comingList = res.data.coming
+			this.isLoading = false
 			// console.log(res.data.coming)
+			this.prevCityId = cityId
 		})
 	},
 

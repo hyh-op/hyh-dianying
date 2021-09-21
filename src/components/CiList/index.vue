@@ -1,5 +1,7 @@
 <template>
     <div class="cinema_body">
+		<Loading v-if="isLoading"/>
+		<Scroller>
 				<ul>
 					<!-- <li>
 						<div>
@@ -28,9 +30,10 @@
                 			<div v-for="(cardNum,key) in data.tag" v-if="cardNum === 1" :key="key" :class="key | classCard">
 								{{key | formatCard }}
 							</div>
-       					</div>
+       					</div> 
 					</li>
 				</ul>
+		</Scroller>
 			</div>
 </template>
 
@@ -39,17 +42,42 @@ export default {
     name : 'CiList',
 	data () {
 		return {
-			cinemaList : []
+			cinemaList : [],
+			isLoading : true,
+			prevCityId : -1
 		}
 	},
-	mounted(){
-		this.axios.get('/api/mtrade/mmcs/cinema/v1/select/movie/cinemas.json?limit=20&offset=0&utm_term=7.5&client=iphone&channelId=4&areaId=-1&brandId=-1&districtId=-1&hallType=-1&lineId=-1&movieId=1356063&serviceId=-1&stationId=-1&showDate=2021-09-18&cityId=151&ci=151').then(res =>{
+	activated(){
+		var cityId = this.$store.state.city.id
+
+		if (this.prevCityId === cityId){
+			return
+		}
+		this.isLoading = true
+		//这里有个bug，这里的axios的url拼接上了日期，由于还没有对日期进行获取，所以每隔天请求需要改一下url的日期，待后期完善
+		this.axios.get(`/api/mtrade/mmcs/cinema/v1/select/movie/cinemas.json?limit=20&offset=0&utm_term=7.5&client=iphone&channelId=4&areaId=-1&brandId=-1&districtId=-1&hallType=-1&lineId=-1&movieId=1356063&serviceId=-1&stationId=-1&showDate=2021-09-21&cityId=${cityId}&ci=151`).then(res =>{
+				this.cinemaList = res.data.data.cinemas
+				this.isLoading = false
+				console.log(this.cinemaList)
+				this.prevCityId = cityId
+			
+
+		})
+	},
+	/* mounted(){
+		this.axios({
+			url:'https://m.maizuo.com/gateway?cityId=440100&ticketFlag=1&k=5640806',
+			headers:{
+				'X-Client-Info': '{"a":"3000","ch":"1002","v":"5.0.4","e":"16315121551792663514775553","bc":"440100"}',
+				'X-Host': 'mall.film-ticket.cinema.list'
+			}
+		}).then(res =>{
 				this.cinemaList = res.data.data.cinemas
 				console.log(this.cinemaList)
 			
 
 		})
-	},
+	}, */
 	filters : {
 		formatCard(key){
 			var card = [

@@ -4,7 +4,7 @@
             <div id="content">
                 <div class="movie_menu">
                     <router-link class="city_name" tag="div" to="/movie/city">
-                        <span>大连</span><i class="iconfont icon-lower-triangle"></i>
+                        <span>{{ $store.state.city.nm }}</span><i class="iconfont icon-lower-triangle"></i>
                     </router-link>
                     <div class="hot_swtich">
                         <router-link class="hot_item" tag="div" to="/movie/nowplaying">正在热映</router-link>
@@ -21,15 +21,38 @@
         <TabBar></TabBar>
     </div>
 </template>
-
 <script>
 import Header from  '@/components/Header'
 import TabBar from  '@/components/TabBar'
+import { messageBox } from '@/components/Js'
 export default {
         name : 'Movie',
         components:{
             Header,
             TabBar
+        },
+        mounted(){
+            setTimeout(()=>{
+                this.axios.get('/geoip/').then(res=>{
+                //console.log(res.data.city)
+                    var nm = res.data.city
+                    //这里留了个Bug,由于api不是原本猫眼的，没有对应的城市id数据，所以本地存储的id没法改,这样后续的影院ajax需要id也没法改
+                    /* var nm = res.data.id */
+                    if(this.$store.state.city.nm === nm){return}
+                    messageBox({
+                    title: '定位',
+                    content : nm,
+                    cancel : '取消',
+                    ok : '切换定位',
+                    handleOk(){
+                        window.localStorage.setItem('nowNm',nm)
+                        /* window.localStorage.setItem('nowId',id) */
+                        window.location.reload()
+                    }
+                })
+            })
+            },3000)
+            
         }
 }
 </script>

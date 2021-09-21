@@ -18,6 +18,16 @@ module.exports = {
           target: 'https://m.maoyan.com/',
           // ws: true,
           changeOrigin: true
+        },
+        '/dianying/cities': {
+          target: 'https://m.maoyan.com/',
+          // ws: true,
+          changeOrigin: true
+        },
+        '/geoip/':{
+          target: 'https://api.asilu.com/',
+          // ws: true,
+          changeOrigin: true
         }
       }
     }

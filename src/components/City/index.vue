@@ -1,11 +1,14 @@
 <template>
     <div class="city_body">
 				<div class="city_list">
+					<Loading v-if="isLoading"/>
+					<Scroller ref="city_List"  v-else>
+						<div>
 					<div class="city_hot">
 						<h2>热门城市</h2>
 						<ul class="clearfix">
-							<li v-for="data in hostList" :key="data.cityId">
-								{{data.name}}
+							<li v-for="data in hostList" :key="data.id" @tap='handleToCity(data.nm , data.id)'>
+								{{data.nm}}
 							</li>
 						</ul>
 					</div>
@@ -13,10 +16,12 @@
 						<div v-for="item in cityList" :key="item.index">
 							<h2>{{item.index}}</h2>
 							<ul>
-								<li v-for="city in item.list" :key="city.cityId">{{city.name}}</li>
+								<li v-for="city in item.list" :key="city.id" @tap='handleToCity(city.nm , city.id)'>{{city.nm}}</li>
 							</ul>
 						</div>
 					</div>
+					</div>
+					</Scroller>
 				</div>
 				<div class="city_index">
 					<ul>
@@ -32,25 +37,34 @@ export default {
 	data(){
 		return {
 			cityList : [],
-			hostList : []
+			hostList : [],
+			isLoading : true
 		}
 	},
 	mounted(){
-		this.axios({
-			url : 'https://m.maizuo.com/gateway?k=122572',
-			headers: {'X-Client-Info': '{"a":"3000","ch":"1002","v":"5.0.4","e":"16315121551792663514775553","bc":"440100"}',
-			'X-Host': 'mall.film-ticket.city.list'}
-		}).then(res => {
+		var cityList = window.localStorage.getItem('cityList')
+		var hostList = window.localStorage.getItem('hostList')
+		//如果有本地存储的话，就不用再加载了
+		if(cityList && hostList){
+			this.cityList = JSON.parse(cityList)
+			this.hostList = JSON.parse(hostList)
+			this.isLoading = false
+		}else{
+		this.axios.get('/dianying/cities.json').then(res => {
 			// console.log(res.data)
-			var msg = res.data.msg
+			var msg = 'ok'
 			if(msg == 'ok'){
-				var data = res.data.data.cities
+				this.isLoading = false
+				var data = res.data.cts
 				//用下面的函数，对data进行格式化改造
 				var {cityList , hostList} = this.formatCityList(data)
 				this.cityList = cityList
 				this.hostList = hostList
+				window.localStorage.setItem('cityList' ,JSON.stringify(cityList))
+				window.localStorage.setItem('hostList' ,JSON.stringify(hostList))
 			}
 		})
+		}
 	},
 	methods: {
 		formatCityList(cities){
@@ -58,19 +72,19 @@ export default {
 			var hostList = []
 
 			for(var i = 0; i < cities.length; i++){
-				if(cities[i].isHot === 1){
+				if(cities[i].id >= 1 && cities[i].id <= 30){
 					hostList.push(cities[i])
 				}
 			}
 
 			for(var i =0; i< cities.length; i++){
-				var firstLetter = cities[i].pinyin.substring(0,1).toUpperCase()
+				var firstLetter = cities[i].py.substring(0,1).toUpperCase()
 				if(toCom(firstLetter)){		//新添加索引
-					cityList.push({ index : firstLetter , list : [ {name : cities[i].name , cityId : cities[i].cityId} ] })
+					cityList.push({ index : firstLetter , list : [ {nm : cities[i].nm , id : cities[i].id} ] })
 				}else{	//累加已有索引
 					for(var j = 0; j < cityList.length; j++){
 						if( cityList[j].index === firstLetter){
-							cityList[j].list.push({name : cities[i].name , cityId : cities[i].cityId})
+							cityList[j].list.push({nm : cities[i].nm , id : cities[i].id})
 						}
 					}
 				}
@@ -106,8 +120,16 @@ export default {
 			},
 		handleToindex(index){
 			var h2 = this.$refs.city_sort.getElementsByTagName('h2')
-			this.$refs.city_sort.parentNode.scrollTop = h2[index].offsetTop
+			//this.$refs.city_sort.parentNode.scrollTop = h2[index].offsetTop
+			//上面是原本的写法，加上betterscroll之后，里面的点击被管理了，在封装里面些，用betterscroll自带的方法，自带的方法是向上滚动的，要给距离加上负的
+			this.$refs.city_List.toScrollTop(-h2[index].offsetTop)
 
+		},
+		handleToCity(nm,id){
+			this.$store.commit('city/CITY_INFO',{nm , id })
+			window.localStorage.setItem('nowNm',nm)
+			window.localStorage.setItem('nowId',id)
+			this.$router.push('/movie/nowPlaying')
 		}
 		}
 }
