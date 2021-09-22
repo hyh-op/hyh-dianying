@@ -55,7 +55,7 @@ export default {
 		}
 		this.isLoading = true
 		//这里有个bug，这里的axios的url拼接上了日期，由于还没有对日期进行获取，所以每隔天请求需要改一下url的日期，待后期完善
-		this.axios.get(`/api/mtrade/mmcs/cinema/v1/select/movie/cinemas.json?limit=20&offset=0&utm_term=7.5&client=iphone&channelId=4&areaId=-1&brandId=-1&districtId=-1&hallType=-1&lineId=-1&movieId=1356063&serviceId=-1&stationId=-1&showDate=2021-09-22&cityId=${cityId}&ci=151`).then(res =>{
+		this.axios.get(`/api/mtrade/mmcs/cinema/v1/select/movie/cinemas.json?limit=20&offset=0&utm_term=7.5&client=iphone&channelId=4&areaId=-1&brandId=-1&districtId=-1&hallType=-1&lineId=-1&movieId=1356063&serviceId=-1&stationId=-1&showDate=2021-09-23&cityId=${cityId}&ci=151`).then(res =>{
 				this.cinemaList = res.data.data.cinemas
 				this.isLoading = false
 				console.log(this.cinemaList)
