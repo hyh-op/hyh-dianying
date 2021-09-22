@@ -4,7 +4,7 @@
         <p>{{content}}</p>
         <div>
             <div @touchstart='handleCancel'>{{cancel}}</div>
-            <div @touchstart='handleOk'>{{ok}}</div>
+            <div @touchstart='handleCancel'>{{ok}}</div>
         </div>
     </div>
 </template>
