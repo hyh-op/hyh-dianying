@@ -11,6 +11,9 @@ Vue.config.productionTip = false
 Vue.filter('setImg',(url) => {
   return url.replace('w.h/','') + '@1l_1e_1c_128w_180h'
 })
+Vue.filter('setDetailImg',(url) => {
+  return url.replace('w.h/','') + '@300w_414h_80q_1e_1c'
+})
 
 import Scroller from '@/components/Scroller'
 Vue.component('Scroller',Scroller)
